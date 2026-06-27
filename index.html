@@ -8,8 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-
-<style>
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
@@ -23,7 +21,7 @@ body {
 
 .container {
   width: 90%;
-  max-width: 500px;
+  max-width: 520px;
   background: rgba(255,255,255,0.05);
   padding: 25px;
   border-radius: 15px;
@@ -37,7 +35,7 @@ h1 {
   color: #60a5fa;
 }
 
-input, select {
+input {
   width: 100%;
   padding: 12px;
   margin: 10px 0;
@@ -46,76 +44,61 @@ input, select {
   outline: none;
 }
 
-button {
-  width: 100%;
-  padding: 12px;
-  background: #2563eb;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  background: #1d4ed8;
-}
-
 .vote-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-gap:10px;
-margin-top:15px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:10px;
+  margin-top:10px;
 }
 
 .day-btn{
-padding:15px;
-border:none;
-border-radius:10px;
-background:#1f1f1f;
-color:white;
-font-weight:bold;
-cursor:pointer;
-transition:0.2s;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#1f1f1f;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.2s;
 }
 
 .day-btn:hover{
-background:#333;
+  background:#333;
+}
+
+table{
+  width:100%;
+  margin-top:20px;
+  border-collapse:collapse;
+  overflow:hidden;
+  border-radius:10px;
+}
+
+th{
+  background:#1f1f1f;
+  padding:12px;
+}
+
+td{
+  padding:12px;
+  text-align:center;
+  border-bottom:1px solid #222;
 }
 
 .badge{
-padding:5px 10px;
-border-radius:20px;
-color:white;
-font-size:12px;
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:12px;
 }
 
 .available{background:#2ecc71;}
 .fullbadge{background:#e74c3c;}
 
-table{
-width:100%;
-margin-top:20px;
-border-collapse:collapse;
-}
-
-th{
-background:#1f1f1f;
-color:#fff;
-padding:12px;
-}
-
-td{
-padding:12px;
-text-align:center;
-border-bottom:1px solid #222;
-}
-
 #message{
-margin-top:10px;
+  margin-top:10px;
+  text-align:center;
+  color:#60a5fa;
 }
-
 </style>
 </head>
 
@@ -123,36 +106,24 @@ margin-top:10px;
 
 <div class="container">
 
-<div class="card">
-<div class="container">
   <h1>Work From Home Vote</h1>
 
   <input type="text" id="name" placeholder="Enter your name">
 
-  <select id="day">
-    <option value="">Choose a day</option>
-    <option>Tuesday</option>
-    <option>Wednesday</option>
-    <option>Thursday</option>
-    <option>Friday</option>
-    <option>Saturday</option>
-  </select>
+  <div id="voteButtons" class="vote-grid"></div>
 
-  <button onclick="submitVote()" id="voteBtn">Vote</button>
-</div>
+  <div id="message"></div>
 
-<div class="card">
-<table>
-<thead>
-<tr>
-<th>Day</th>
-<th>People</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody id="tableBody"></tbody>
-</table>
-</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>People</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
 
 </div>
 
@@ -160,14 +131,14 @@ margin-top:10px;
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-getFirestore,
-collection,
-getDocs,
-addDoc,
-query,
-where,
-onSnapshot,
-serverTimestamp
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  where,
+  onSnapshot,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -190,92 +161,93 @@ const tableBody = document.getElementById("tableBody");
 const message = document.getElementById("message");
 
 function showMessage(text){
-message.innerText = text;
-setTimeout(()=>message.innerText="",3000);
+  message.innerText = text;
+  setTimeout(()=>message.innerText="",3000);
 }
 
-/* DEVICE ID */
+/* device id */
 function getDeviceId(){
-let id = localStorage.getItem("device_id");
-if(!id){
-id = crypto.randomUUID();
-localStorage.setItem("device_id",id);
-}
-return id;
+  let id = localStorage.getItem("device_id");
+  if(!id){
+    id = crypto.randomUUID();
+    localStorage.setItem("device_id",id);
+  }
+  return id;
 }
 
-/* BUTTONS */
+/* create buttons */
 DAYS.forEach(day=>{
-const btn=document.createElement("button");
-btn.className="day-btn";
-btn.innerText=day;
-btn.onclick=()=>vote(day);
-voteContainer.appendChild(btn);
+  const btn=document.createElement("button");
+  btn.className="day-btn";
+  btn.innerText=day;
+
+  btn.onclick=()=>vote(day);
+  voteContainer.appendChild(btn);
 });
 
-/* VOTE */
+/* vote */
 async function vote(day){
 
-const name=document.getElementById("name").value.trim();
-if(!name) return showMessage("Enter name");
+  const name=document.getElementById("name").value.trim();
+  if(!name) return showMessage("Enter name");
 
-const deviceId=getDeviceId();
+  const deviceId=getDeviceId();
 
-/* one vote per device */
-const check = await getDocs(
-query(votesRef,where("deviceId","==",deviceId))
-);
+  const check = await getDocs(
+    query(votesRef,where("deviceId","==",deviceId))
+  );
 
-if(!check.empty){
-return showMessage("This device already voted");
+  if(!check.empty){
+    return showMessage("You already voted");
+  }
+
+  const daySnap = await getDocs(
+    query(votesRef,where("day","==",day))
+  );
+
+  if(daySnap.size>=2){
+    return showMessage("This day is full");
+  }
+
+  await addDoc(votesRef,{
+    name:name.toLowerCase(),
+    day,
+    deviceId,
+    createdAt:serverTimestamp()
+  });
+
+  showMessage("Vote submitted ✔");
 }
 
-/* day limit */
-const daySnap = await getDocs(
-query(votesRef,where("day","==",day))
-);
-
-if(daySnap.size>=2){
-return showMessage("Day is full");
-}
-
-await addDoc(votesRef,{
-name:name.toLowerCase(),
-day,
-deviceId,
-createdAt:serverTimestamp()
-});
-
-showMessage("Vote submitted");
-}
-
-/* LIVE */
+/* live update */
 onSnapshot(votesRef,snap=>{
 
-const data={};
-DAYS.forEach(d=>data[d]=[]);
+  const data={};
+  DAYS.forEach(d=>data[d]=[]);
 
-snap.forEach(d=>{
-const v=d.data();
-data[v.day].push(v.name);
-});
+  snap.forEach(doc=>{
+    const v=doc.data();
+    data[v.day].push(v.name);
+  });
 
-tableBody.innerHTML="";
+  tableBody.innerHTML="";
 
-DAYS.forEach(day=>{
-const people=data[day];
+  DAYS.forEach(day=>{
+    const people=data[day];
 
-tableBody.innerHTML+=`
-<tr>
-<td>${day}</td>
-<td>${people.length?people.join("<br>"):"-"}</td>
-<td>
-${people.length>=2
-? '<span class="badge fullbadge">FULL</span>'
-: '<span class="badge available">'+(2-people.length)+' left</span>'}
-</td>
-</tr>`;
-});
+    tableBody.innerHTML+=`
+      <tr>
+        <td>${day}</td>
+        <td>${people.length?people.join("<br>"):"-"}</td>
+        <td>
+          ${people.length>=2
+            ? '<span class="badge fullbadge">FULL</span>'
+            : '<span class="badge available">'+(2-people.length)+' left</span>'
+          }
+        </td>
+      </tr>
+    `;
+  });
 
 });
 
