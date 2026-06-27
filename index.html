@@ -9,39 +9,57 @@
 
 <style>
 
-body{
-font-family:Poppins;
-background:#000; /* BLACK BACKGROUND */
-color:#fff;
-padding:30px;
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #0f172a, #020617);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-.container{
-max-width:900px;
-margin:auto;
+.container {
+  width: 90%;
+  max-width: 500px;
+  background: rgba(255,255,255,0.05);
+  padding: 25px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-.card{
-background:#111;
-padding:25px;
-border-radius:15px;
-margin-bottom:20px;
-border:1px solid #222;
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #60a5fa;
 }
 
-h1{
-text-align:center;
-color:#fff;
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: none;
+  outline: none;
 }
 
-input{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:1px solid #333;
-margin-top:10px;
-background:#000;
-color:#fff;
+button {
+  width: 100%;
+  padding: 12px;
+  background: #2563eb;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #1d4ed8;
 }
 
 .vote-grid{
@@ -106,13 +124,21 @@ margin-top:10px;
 <div class="container">
 
 <div class="card">
-<h1>🏡 Work From Home</h1>
+<div class="container">
+  <h1>Work From Home Vote</h1>
 
-<input id="name" placeholder="Enter your name">
+  <input type="text" id="name" placeholder="Enter your name">
 
-<div class="vote-grid" id="voteButtons"></div>
+  <select id="day">
+    <option value="">Choose a day</option>
+    <option>Tuesday</option>
+    <option>Wednesday</option>
+    <option>Thursday</option>
+    <option>Friday</option>
+    <option>Saturday</option>
+  </select>
 
-<div id="message"></div>
+  <button onclick="submitVote()" id="voteBtn">Vote</button>
 </div>
 
 <div class="card">
